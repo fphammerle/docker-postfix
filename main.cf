@@ -1,0 +1,26 @@
+# SERVER
+inet_interfaces = all
+# $myhostname is as prefix is a RFC requirement
+smtpd_banner = $myhostname ESMTP $mail_name quid agis?
+# RCPT TO matches $relay_domains => !reject_unauth_destination
+smtpd_relay_restrictions = reject_non_fqdn_recipient, reject_unauth_destination
+# include TLS protocol & cipher in 'Received' header
+smtpd_tls_received_header = yes
+# + sasl username
+smtpd_sasl_authenticated_header = yes
+
+# CLIENT
+smtp_tls_security_level = dane
+# exceptions for smtp servers not providing DANE
+smtp_tls_policy_maps = hash:/etc/postfix/smtp-tls-policy-map
+# trusted CA for exceptions specified in policy map (lvl verify & secure)
+smtp_tls_CAfile = /etc/postfix/smtp-tls-trusted-ca.pem
+smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
+smtp_tls_session_cache_database = btree:${data_directory}/smtp-tls-session-cache
+# DANE TLSA records are validated with DNSSEC
+smtp_dns_support_level = dnssec
+# DANE validation requires DNS lookups
+smtp_host_lookup = dns
+
+# http://www.postfix.org/COMPATIBILITY_README.html
+compatibility_level = 2
