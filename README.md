@@ -19,3 +19,5 @@ sudo docker run --detach --rm \
 ```
 
 optional: enable usernamespace mode via daemon option `userns-remap`
+
+TODO: investigate why postfix won't verify `$relayhost` against `$smtp_tls_policy_maps`
