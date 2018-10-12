@@ -7,7 +7,7 @@ dockerfile repo: https://git.hammerle.me/fphammerle/docker-postfix
 config notes: https://git.hammerle.me/fphammerle/config-postfix/src/master/README.md
 
 ```sh
-sudo docker run --detach --rm \
+sudo docker run --detach \
     --security-opt=no-new-privileges \
     --volume /dev/log:/dev/log \
     --env POSTFIX_RELAYHOST=relayhost.example.com:submission \
