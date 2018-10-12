@@ -15,9 +15,7 @@ sudo docker run --detach --rm \
     --publish 127.0.0.1:25:25 \
     --restart unless-stopped \
     --name postfix \
-    fphammerle/postfix:3.3.0-amd64-relay
+    fphammerle/postfix:3.3.0-amd64-relay-secure
 ```
 
 optional: enable usernamespace mode via daemon option `userns-remap`
-
-TODO: investigate why postfix won't verify `$relayhost` against `$smtp_tls_policy_maps`

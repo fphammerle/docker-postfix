@@ -1,6 +1,4 @@
 # postmap /etc/postfix/smtp-tls-policy-map
 
-alpaga.hammerle.me	secure match=nexthop
-epignomus.hammerle.me	secure match=nexthop
-velo.hammerle.me	secure match=nexthop
-hammerle.me	secure match=epignomus.hammerle.me:velo.hammerle.me
+hammerle.me:smtp	secure match=epignomus.hammerle.me:velo.hammerle.me:alpaga.hammerle.me
+hammerle.me:submission	secure match=epignomus.hammerle.me:velo.hammerle.me:alpaga.hammerle.me
