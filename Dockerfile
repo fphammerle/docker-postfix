@@ -18,8 +18,6 @@ RUN postfix check
 
 ENV POSTFIX_RELAYHOST ""
 ENV POSTFIX_RELAY_DOMAINS ""
+COPY serve.sh /
 # TODO run as unprivileged user?
-CMD postconf -ev relayhost="$POSTFIX_RELAYHOST" \
- && postconf -ev relay_domains="$POSTFIX_RELAY_DOMAINS" \
- && postconf -ev syslog_name="$HOSTNAME/pstfx" \
- && postfix start-fg
+CMD ["/serve.sh"]
