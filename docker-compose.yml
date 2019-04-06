@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  postfix:
+    build: .
+    image: fphammerle/postfix
+    environment:
+      POSTFIX_RELAYHOST: relayhost.example.com:submission
+      POSTFIX_RELAY_DOMAINS: example.com
+    ports: ['127.0.0.1:25:25']
+    volumes: [/dev/log]
+    security_opt: [no-new-privileges]
+    restart: unless-stopped
+
+# https://docs.docker.com/compose/compose-file/compose-file-v2/
