@@ -16,7 +16,8 @@ smtp_tls_secure_cert_match = nexthop
 smtp_tls_policy_maps = hash:/etc/postfix/smtp-tls-policy-map
 # trusted CA for exceptions specified in policy map (lvl verify & secure)
 smtp_tls_CAfile = /etc/postfix/smtp-tls-trusted-ca.pem
-smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
+# docs recommend against whitelist
+smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 smtp_tls_session_cache_database = btree:${data_directory}/smtp-tls-session-cache
 # DANE TLSA records are validated with DNSSEC
 smtp_dns_support_level = dnssec
