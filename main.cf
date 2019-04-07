@@ -2,6 +2,7 @@
 inet_interfaces = all
 # $myhostname is as prefix is a RFC requirement
 smtpd_banner = $myhostname ESMTP $mail_name quid agis?
+smtpd_sender_restrictions = reject_non_fqdn_sender
 # RCPT TO matches $relay_domains => !reject_unauth_destination
 smtpd_relay_restrictions = reject_non_fqdn_recipient, reject_unauth_destination
 # include TLS protocol & cipher in 'Received' header
