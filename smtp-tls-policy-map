@@ -1,4 +1,0 @@
-# postmap /etc/postfix/smtp-tls-policy-map
-
-hammerle.me:smtp	secure match=epignomus.hammerle.me:velo.hammerle.me:alpaga.hammerle.me
-hammerle.me:submission	secure match=epignomus.hammerle.me:velo.hammerle.me:alpaga.hammerle.me
