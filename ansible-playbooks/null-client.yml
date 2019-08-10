@@ -13,7 +13,9 @@
         smtpd_banner = $myhostname ESMTP $mail_name quid agis?
 
         # RCPT TO matches $relay_domains => !reject_unauth_destination
+        # http://www.postfix.org/postconf.5.html#smtpd_relay_restrictions
         smtpd_relay_restrictions = reject_non_fqdn_recipient, reject_unauth_destination
+        mydestination =
         relay_domains = example.com
 
         # include TLS protocol & cipher in 'Received' header
