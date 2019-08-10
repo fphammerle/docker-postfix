@@ -1,0 +1,44 @@
+- hosts: [localhost]
+  become: true
+  tasks:
+  - docker_network:
+      name: mail
+  - docker_volume:
+      volume_name: postfix_config
+    register: config_volume
+  - name: create config
+    copy:
+      content: |
+        # $myhostname prefix is a RFC requirement
+        smtpd_banner = $myhostname ESMTP $mail_name quid agis?
+
+        # RCPT TO matches $relay_domains => !reject_unauth_destination
+        smtpd_relay_restrictions = reject_non_fqdn_recipient, reject_unauth_destination
+        relay_domains = example.com
+
+        # include TLS protocol & cipher in 'Received' header
+        smtpd_tls_received_header = yes
+        # + sasl username
+        smtpd_sasl_authenticated_header = yes
+
+        relayhost = relay.example.com:submission
+
+        # http://www.postfix.org/MAILLOG_README.html
+        maillog_file = /dev/stdout
+
+        # http://www.postfix.org/COMPATIBILITY_README.html
+        compatibility_level = 2
+      dest: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf'
+      mode: a=r
+    register: config
+  - docker_container:
+      name: postfix
+      image: fphammerle/postfix
+      hostname: postfix-test
+      volumes:
+      - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
+      networks: [name: mail]
+      purge_networks: yes
+      published_ports: ['localhost:25:25']
+      restart_policy: unless-stopped
+      restart: '{{ config.changed }}'
