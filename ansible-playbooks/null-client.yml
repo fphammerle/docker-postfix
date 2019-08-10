@@ -33,7 +33,8 @@
     register: config
   - docker_container:
       name: postfix
-      image: fphammerle/postfix
+      # 1.0.0-postfix3.4.5r0-amd64
+      image: fphammerle/postfix@sha256:33c2dfc8d292b8399f7c61b206922b81c870ce5ae2c7e233fd1a38d420417154
       hostname: postfix-test
       volumes:
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
