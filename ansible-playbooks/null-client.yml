@@ -6,6 +6,11 @@
   - docker_volume:
       volume_name: postfix_config
     register: config_volume
+  - name: copy trusted CA certs
+    copy:
+      src: ../smtp-tls-trusted-ca.pem
+      dest: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/smtp-tls-trusted-ca.pem'
+    register: smtp_trusted_ca_certs
   - name: create config
     copy:
       content: |
@@ -24,6 +29,12 @@
         smtpd_sasl_authenticated_header = yes
 
         relayhost = relay.example.com:submission
+        smtp_tls_security_level = secure
+        smtp_tls_secure_cert_match = nexthop
+        smtp_tls_CAfile = /etc/postfix/smtp-tls-trusted-ca.pem
+        # docs recommend against whitelist
+        smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+        smtp_tls_session_cache_database = btree:${data_directory}/smtp-tls-session-cache
 
         # http://www.postfix.org/MAILLOG_README.html
         maillog_file = /dev/stdout
@@ -40,8 +51,9 @@
       hostname: postfix-test
       volumes:
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
+      - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/smtp-tls-trusted-ca.pem:/etc/postfix/smtp-tls-trusted-ca.pem:ro'
       networks: [name: mail]
       purge_networks: yes
       published_ports: ['localhost:25:25']
       restart_policy: unless-stopped
-      restart: '{{ config.changed }}'
+      restart: '{{ config.changed or smtp_trusted_ca_certs.changed }}'
