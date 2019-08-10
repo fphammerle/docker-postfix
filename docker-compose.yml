@@ -5,6 +5,10 @@ services:
     build: .
     image: fphammerle/postfix
     ports: ['127.0.0.1:25:25']
+    environment:
+      POSTMAP_PATHS: |
+        /etc/postfix/edit-docker-compose.yml
+        /etc/postfix/replace-me
     security_opt: [no-new-privileges]
     restart: unless-stopped
 
