@@ -1,10 +1,15 @@
 version: '2'
 
+volumes:
+  queue:
+
 services:
   postfix:
     build: .
     image: fphammerle/postfix
     ports: ['127.0.0.1:25:25']
+    volumes:
+    - queue:/var/spool/postfix:rw
     environment:
       POSTMAP_PATHS: |
         /etc/postfix/edit-docker-compose.yml

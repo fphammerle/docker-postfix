@@ -6,6 +6,9 @@
   - docker_volume:
       volume_name: postfix_config
     register: config_volume
+  - docker_volume:
+      volume_name: postfix_queue
+    register: queue_volume
   - name: copy trusted CA certs
     copy:
       src: ../smtp-tls-trusted-ca.pem
@@ -46,12 +49,13 @@
     register: config
   - docker_container:
       name: postfix
-      # 1.0.0-postfix3.4.5r0-amd64
-      image: fphammerle/postfix@sha256:33c2dfc8d292b8399f7c61b206922b81c870ce5ae2c7e233fd1a38d420417154
+      # 1.0.1-postfix3.4.5r0-amd64
+      image: fphammerle/postfix@sha256:b2d214d66f1760bdcbfa3156efa7cb08cef5d80e5f6607e181f79fdde409b82d
       hostname: postfix-test
       volumes:
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/smtp-tls-trusted-ca.pem:/etc/postfix/smtp-tls-trusted-ca.pem:ro'
+      - '{{ queue_volume.ansible_facts.docker_volume.Mountpoint }}:/var/spool/postfix:rw'
       networks: [name: mail]
       purge_networks: yes
       published_ports: ['localhost:25:25']
