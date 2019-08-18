@@ -61,7 +61,9 @@
         # http://www.postfix.org/COMPATIBILITY_README.html
         compatibility_level = 2
       dest: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf'
-      mode: a=r
+      # postfix: warning: not owned by root
+      owner: '{{ config_volume_stat.stat.uid }}'
+      mode: u=r,g=,o=
     register: config
   - docker_container:
       name: postfix
