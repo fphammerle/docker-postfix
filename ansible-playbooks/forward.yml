@@ -1,0 +1,82 @@
+- hosts: [forward.example.com]
+  become: true
+  vars:
+    virtual_alias_domains:
+    - example.co
+    - example.com
+    - example.info
+  tasks:
+  - docker_network:
+      name: mail
+  - docker_volume:
+      volume_name: postfix_config
+    register: config_volume
+  - docker_volume:
+      volume_name: postfix_queue
+    register: queue_volume
+  - stat:
+      path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}'
+    register: config_volume_stat
+  - name: create virtual alias map
+    copy:
+      # http://www.postfix.org/virtual.5.html
+      content: |
+        alice@example.co alice@gmail.com
+        office@example.info alice@gmail.com
+        bob@example.co bob@gmail.com
+        bob@example.com bob@gmail.com
+      dest: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/virtual'
+      mode: u=r,g=,o=
+      # workaround if userns remapping enabled
+      # postmap: fatal: open /etc/postfix/virtual.db: Permission denied
+      owner: '{{ config_volume_stat.stat.uid }}'
+    register: virtual_alias_map
+  - name: create config
+    copy:
+      content: |
+        # $myhostname prefix is a RFC requirement
+        smtpd_banner = $myhostname ESMTP $mail_name quid agis?
+
+        # http://www.postfix.org/postconf.5.html#smtpd_relay_restrictions
+        smtpd_relay_restrictions = reject_non_fqdn_recipient, reject_unauth_destination
+        mydestination =
+        # http://www.postfix.org/VIRTUAL_README.html#virtual_alias
+        virtual_alias_domains = {{ virtual_alias_domains | join(', ') }}
+        virtual_alias_maps = hash:/etc/postfix/virtual
+
+        # include TLS protocol & cipher in 'Received' header
+        smtpd_tls_received_header = yes
+
+        # bytes
+        message_size_limit = {{ 32 * 1024 * 1024 }}
+
+        smtp_tls_security_level = encrypt
+        # docs recommend against whitelist
+        smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+        smtp_tls_session_cache_database = btree:${data_directory}/smtp-tls-session-cache
+
+        # http://www.postfix.org/MAILLOG_README.html
+        maillog_file = /dev/stdout
+
+        # http://www.postfix.org/COMPATIBILITY_README.html
+        compatibility_level = 2
+      dest: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf'
+      mode: a=r
+    register: config
+  - docker_container:
+      name: postfix
+      # 1.0.1-postfix3.4.5r0-amd64
+      image: fphammerle/postfix@sha256:b2d214d66f1760bdcbfa3156efa7cb08cef5d80e5f6607e181f79fdde409b82d
+      hostname: forward.example.com
+      volumes:
+      - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
+      - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/virtual:/etc/postfix/virtual:ro'
+      - '{{ queue_volume.ansible_facts.docker_volume.Mountpoint }}:/var/spool/postfix:rw'
+      env:
+        POSTMAP_PATHS: |
+          /etc/postfix/virtual
+      networks: [name: mail]
+      purge_networks: yes
+      published_ports: ['25:25']
+      restart_policy: unless-stopped
+      restart: '{{ config.changed or virtual_alias_map.changed }}'
