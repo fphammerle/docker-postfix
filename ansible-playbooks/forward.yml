@@ -1,10 +1,13 @@
-- hosts: [forward.example.com]
+- hosts: [forward]
   become: true
   vars:
+    hostname: forward.example.com
     virtual_alias_domains:
     - example.co
     - example.com
     - example.info
+    # docs recommend against whitelist
+    tls_protocols: ['!SSLv2', '!SSLv3', '!TLSv1', '!TLSv1.1']
   tasks:
   - docker_network:
       name: mail
@@ -30,9 +33,38 @@
       # postmap: fatal: open /etc/postfix/virtual.db: Permission denied
       owner: '{{ config_volume_stat.stat.uid }}'
     register: virtual_alias_map
+  - openssl_privatekey:
+      path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/key.pem'
+      type: RSA
+      size: 4096
+      owner: '{{ config_volume_stat.stat.uid }}'
+      mode: o=r,g=,o=
+  - openssl_csr:
+      path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/cert-request.pem'
+      privatekey_path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/key.pem'
+      common_name: '{{ hostname }}'
+      subject_alt_name: ['DNS:{{ hostname }}']
+      country_name: AT
+      basic_constraints: ['CA:FALSE']
+      basic_constraints_critical: yes
+      digest: sha256
+      mode: a=r
+  - openssl_certificate:
+      backup: yes
+      path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/cert.pem'
+      csr_path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/cert-request.pem'
+      privatekey_path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/key.pem'
+      provider: selfsigned
+      mode: a=r
   - name: create config
     copy:
       content: |
+        smtpd_tls_security_level = may
+        smtpd_tls_cert_file=/smtpd-cert.pem
+        smtpd_tls_key_file=/smtpd-key.pem
+        smtpd_tls_protocols = {{ tls_protocols | join(', ') }}
+        smtpd_tls_ciphers = high
+        smtpd_tls_session_cache_database = btree:${data_directory}/smtpd-tls-session-cache
         # $myhostname prefix is a RFC requirement
         smtpd_banner = $myhostname ESMTP $mail_name quid agis?
 
@@ -51,8 +83,7 @@
         delay_warning_time = 1h
 
         smtp_tls_security_level = encrypt
-        # docs recommend against whitelist
-        smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+        smtp_tls_mandatory_protocols = {{ tls_protocols | join(', ') }}
         smtp_tls_session_cache_database = btree:${data_directory}/smtp-tls-session-cache
 
         # http://www.postfix.org/MAILLOG_README.html
@@ -69,11 +100,13 @@
       name: postfix
       # 1.0.1-postfix3.4.5r0-amd64
       image: fphammerle/postfix@sha256:b2d214d66f1760bdcbfa3156efa7cb08cef5d80e5f6607e181f79fdde409b82d
-      hostname: forward.example.com
+      hostname: '{{ hostname }}'
       volumes:
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/virtual:/etc/postfix/virtual:ro'
       - '{{ queue_volume.ansible_facts.docker_volume.Mountpoint }}:/var/spool/postfix:rw'
+      - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/key.pem:/smtpd-key.pem:ro'
+      - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/cert.pem:/smtpd-cert.pem:ro'
       networks: [name: mail]
       purge_networks: yes
       published_ports: ['25:25']
