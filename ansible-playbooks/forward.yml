@@ -48,6 +48,7 @@
 
         # bytes
         message_size_limit = {{ 32 * 1024 * 1024 }}
+        delay_warning_time = 1h
 
         smtp_tls_security_level = encrypt
         # docs recommend against whitelist
