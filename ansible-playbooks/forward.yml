@@ -21,10 +21,9 @@
     copy:
       # http://www.postfix.org/virtual.5.html
       content: |
-        alice@example.co alice@gmail.com
-        office@example.info alice@gmail.com
-        bob@example.co bob@gmail.com
-        bob@example.com bob@gmail.com
+        /^alice/ alice@gmail.com
+        /^bob/ bob@gmail.com
+        /^postmaster\@/ alice@gmail.com
       dest: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/virtual'
       mode: u=r,g=,o=
       # workaround if userns remapping enabled
@@ -42,7 +41,7 @@
         mydestination =
         # http://www.postfix.org/VIRTUAL_README.html#virtual_alias
         virtual_alias_domains = {{ virtual_alias_domains | join(', ') }}
-        virtual_alias_maps = hash:/etc/postfix/virtual
+        virtual_alias_maps = regexp:/etc/postfix/virtual
 
         # include TLS protocol & cipher in 'Received' header
         smtpd_tls_received_header = yes
@@ -72,9 +71,6 @@
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/main.cf:/etc/postfix/main.cf:ro'
       - '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/virtual:/etc/postfix/virtual:ro'
       - '{{ queue_volume.ansible_facts.docker_volume.Mountpoint }}:/var/spool/postfix:rw'
-      env:
-        POSTMAP_PATHS: |
-          /etc/postfix/virtual
       networks: [name: mail]
       purge_networks: yes
       published_ports: ['25:25']
