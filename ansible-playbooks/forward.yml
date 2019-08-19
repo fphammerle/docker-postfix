@@ -141,3 +141,8 @@
       published_ports: ['25:25']
       restart_policy: unless-stopped
       restart: '{{ config.changed or virtual_alias_map.changed or smtpd_cert.changed }}'
+  - name: send test mail
+    command: docker exec postfix sendmail check@ssl-tools.net
+  - name: ssl-tools test url
+    debug:
+      msg: 'https://ssl-tools.net/mailservers/{{ hostname }}'
