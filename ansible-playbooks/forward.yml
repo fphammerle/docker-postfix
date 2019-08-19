@@ -56,6 +56,29 @@
       privatekey_path: '{{ config_volume.ansible_facts.docker_volume.Mountpoint }}/key.pem'
       provider: selfsigned
       mode: a=r
+    register: smtpd_cert
+  - name: postsrsd secrets volume
+    docker_volume:
+      volume_name: postsrsd_secrets
+    register: postsrsd_secrets_volume
+  - name: postsrsd secrets dir
+    file:
+      path: '{{ postsrsd_secrets_volume.ansible_facts.docker_volume.Mountpoint }}/secrets'
+      state: directory
+      # arbitrary user, see https://github.com/fphammerle/docker-postsrsd/blob/docker/0.1.1-postsrsd1.6-amd64/Dockerfile
+      mode: a=rwx,+t
+  - name: postsrsd
+    docker_container:
+      name: postsrsd
+      # docker/0.1.1-postsrsd1.6-amd64
+      image: fphammerle/postsrsd@sha256:486d79d63ce716994b7baca55172334aca525557e6609ee5864924040b6ad2d3
+      networks: [name: mail]
+      purge_networks: yes
+      env:
+        SRS_DOMAIN: '{{ hostname }}'
+      volumes:
+      - '{{ postsrsd_secrets_volume.ansible_facts.docker_volume.Mountpoint }}/secrets:/etc/postsrsd/secrets:rw'
+      restart_policy: always
   - name: create config
     copy:
       content: |
@@ -82,6 +105,11 @@
         message_size_limit = {{ 32 * 1024 * 1024 }}
         delay_warning_time = 1h
 
+        sender_canonical_maps = tcp:postsrsd:10001
+        sender_canonical_classes = envelope_sender
+        recipient_canonical_maps = tcp:postsrsd:10002
+        recipient_canonical_classes= envelope_recipient,header_recipient
+
         smtp_tls_security_level = encrypt
         smtp_tls_mandatory_protocols = {{ tls_protocols | join(', ') }}
         smtp_tls_session_cache_database = btree:${data_directory}/smtp-tls-session-cache
@@ -96,7 +124,8 @@
       owner: '{{ config_volume_stat.stat.uid }}'
       mode: u=r,g=,o=
     register: config
-  - docker_container:
+  - name: postfix
+    docker_container:
       name: postfix
       # 1.0.1-postfix3.4.5r0-amd64
       image: fphammerle/postfix@sha256:b2d214d66f1760bdcbfa3156efa7cb08cef5d80e5f6607e181f79fdde409b82d
@@ -111,4 +140,4 @@
       purge_networks: yes
       published_ports: ['25:25']
       restart_policy: unless-stopped
-      restart: '{{ config.changed or virtual_alias_map.changed }}'
+      restart: '{{ config.changed or virtual_alias_map.changed or smtpd_cert.changed }}'
