@@ -1,6 +1,6 @@
-FROM alpine:3.10
+FROM alpine:3.11
 
-ARG POSTFIX_PACKAGE_VERSION=3.4.7-r0
+ARG POSTFIX_PACKAGE_VERSION=3.4.8-r0
 RUN apk add --no-cache postfix=$POSTFIX_PACKAGE_VERSION
 
 # http://www.postfix.org/MAILLOG_README.html

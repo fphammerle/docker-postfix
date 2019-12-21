@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - disable local apk cache
+- upgrade postfix v3.4.7 -> v3.4.8
+  - changelog: http://www.postfix.org/announcements/postfix-3.4.8.html
+  - package commit: https://git.alpinelinux.org/aports/commit/?id=4f878d653bf1e8dd1d2d13dc58b64ce5ec14d48b
 
 ## [1.0.1] - 2019-08-10
 ### Fixed
