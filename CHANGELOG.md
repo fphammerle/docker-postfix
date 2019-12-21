@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - mount /var/spool/postfix to preserve mail queue
 
 ## [1.0.0] - 2019-08-10
+### Added
+- on startup: postmap paths in `$POSTMAP_PATHS`
+- on startup: update aliases database
+
+### Changed
+- minimal image containing default config only
+- log to stdout
 
 [Unreleased]: https://github.com/fphammerle/docker-postfix/compare/1.0.1...HEAD
 [1.0.1]: https://github.com/fphammerle/docker-postfix/compare/1.0.0...1.0.1
