@@ -1,6 +1,7 @@
 FROM alpine:3.10
 
-RUN apk add --no-cache postfix
+ARG POSTFIX_PACKAGE_VERSION=3.4.7-r0
+RUN apk add --no-cache postfix=$POSTFIX_PACKAGE_VERSION
 
 # http://www.postfix.org/MAILLOG_README.html
 RUN postconf -F | grep -E '^postlog/unix-dgram/service = postlog$' \
