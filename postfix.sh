@@ -3,7 +3,10 @@
 set -e
 
 echo "$POSTMAP_PATHS" | while IFS= read -r postmap_path; do
-    [ -z "$postmap_path" ] || (set -x; postmap "$postmap_path")
+    # by default, postmap runs setresuid(file owner).
+    # disable via -o cause file owner might not have write perms on dir
+    # (e.g., due to dockerd --userns-remap).
+    [ -z "$postmap_path" ] || (set -x; postmap -o "$postmap_path")
 done
 
 set -x
