@@ -1,7 +1,13 @@
 FROM alpine:3.11
 
 ARG POSTFIX_PACKAGE_VERSION=3.4.9-r0
-RUN apk add --no-cache postfix=$POSTFIX_PACKAGE_VERSION
+# http://www.postfix.org/postconf.5.html#tls_append_default_CA
+# https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
+ARG MOZILLA_CA_CERT_STORE_PACKAGE_VERSION=20191127-r1
+RUN apk add --no-cache \
+        ca-certificates=$MOZILLA_CA_CERT_STORE_PACKAGE_VERSION \
+        postfix=$POSTFIX_PACKAGE_VERSION \
+    && postconf -evv tls_append_default_CA=no `# default, but better be safe`
 
 # http://www.postfix.org/MAILLOG_README.html
 RUN postconf -F | grep -E '^postlog/unix-dgram/service = postlog$' \

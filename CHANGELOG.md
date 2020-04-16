@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- added [mozilla's ca cert store](https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/)
+  (disabled per default, enable via `tls_append_default_CA=yes`)
+
 ### Fixed
 - upgrade postfix v3.4.8 -> v3.4.9
   - changelog: http://www.postfix.org/announcements/postfix-3.4.9.html
