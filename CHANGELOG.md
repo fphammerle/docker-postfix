@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- upgrade postfix v3.4.8 -> v3.4.9
+  - changelog: http://www.postfix.org/announcements/postfix-3.4.9.html
+  - package commit: https://git.alpinelinux.org/aports/commit/?id=f38ee5d5622a4b456addea492f7ee9b187719934
 
 ## [1.0.3] - 2019-12-22
 ### Fixed
