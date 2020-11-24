@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.12.1
 
 ARG POSTFIX_PACKAGE_VERSION=3.4.9-r0
 # http://www.postfix.org/postconf.5.html#tls_append_default_CA
