@@ -1,6 +1,6 @@
-FROM alpine:3.13.0
+FROM alpine:3.13.1
 
-ARG POSTFIX_PACKAGE_VERSION=3.5.8-r0
+ARG POSTFIX_PACKAGE_VERSION=3.5.9-r0
 # http://www.postfix.org/postconf.5.html#tls_append_default_CA
 # https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
 ARG MOZILLA_CA_CERT_STORE_PACKAGE_VERSION=20191127-r5
