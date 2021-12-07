@@ -1,9 +1,9 @@
-FROM alpine:3.14.3
+FROM alpine:3.15.0
 
-ARG POSTFIX_PACKAGE_VERSION=3.6.3-r0
+ARG POSTFIX_PACKAGE_VERSION=3.6.3-r1
 # http://www.postfix.org/postconf.5.html#tls_append_default_CA
 # https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
-ARG MOZILLA_CA_CERT_STORE_PACKAGE_VERSION=20191127-r5
+ARG MOZILLA_CA_CERT_STORE_PACKAGE_VERSION=20191127-r7
 RUN apk add --no-cache \
         ca-certificates=$MOZILLA_CA_CERT_STORE_PACKAGE_VERSION \
         postfix=$POSTFIX_PACKAGE_VERSION \
