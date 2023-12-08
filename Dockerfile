@@ -1,4 +1,4 @@
-FROM docker.io/alpine:3.18.5
+FROM docker.io/alpine:3.19.0
 
 # http://www.postfix.org/announcements.html
 # https://git.alpinelinux.org/aports/log/main/postfix?h=3.18-stable
