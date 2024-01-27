@@ -2,7 +2,7 @@ FROM docker.io/alpine:3.19.0
 
 # http://www.postfix.org/announcements.html
 # https://git.alpinelinux.org/aports/log/main/postfix?h=3.19-stable
-ARG POSTFIX_PACKAGE_VERSION=3.8.4-r0
+ARG POSTFIX_PACKAGE_VERSION=3.8.5-r0
 # http://www.postfix.org/postconf.5.html#tls_append_default_CA
 # https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
 # https://gitlab.alpinelinux.org/alpine/ca-certificates/-/commits/master
