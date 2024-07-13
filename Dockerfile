@@ -7,7 +7,7 @@ ARG POSTFIX_PACKAGE_VERSION=3.9.0-r1
 # https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/
 # https://gitlab.alpinelinux.org/alpine/ca-certificates/-/commits/master
 # https://git.alpinelinux.org/aports/log/main/ca-certificates?h=3.19-stable
-ARG MOZILLA_CA_CERT_STORE_PACKAGE_VERSION=20240226-r0
+ARG MOZILLA_CA_CERT_STORE_PACKAGE_VERSION=20240705-r0
 RUN apk add --no-cache \
         ca-certificates=$MOZILLA_CA_CERT_STORE_PACKAGE_VERSION \
         postfix=$POSTFIX_PACKAGE_VERSION \
