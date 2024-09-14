@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 
-FROM docker.io/alpine:3.20.2
+FROM docker.io/alpine:3.20.3
 
 # http://www.postfix.org/announcements.html
 # https://git.alpinelinux.org/aports/log/main/postfix?h=3.20-stable
