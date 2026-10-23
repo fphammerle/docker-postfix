@@ -13,6 +13,7 @@
 
 - Attribution line: `Co-Authored-By: Claude <model name> <noreply@anthropic.com>` — always include the model name,
   e.g. `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
+  (see https://web.archive.org/web/20261016172400/https://docs.github.com/en/pull-requests/how-tos/commit-changes/creating-a-commit-with-multiple-authors)
 - Do **not** include a `Claude-Session:` line — the session URL is private.
 - Explain **why**, not what — don't restate in prose what's already obvious from `git diff` of
   the commit (e.g. "add a notice to the README", "update section X").
@@ -23,6 +24,10 @@
   in `Dockerfile`): keep the subject line `upgrade <package> package from <old> to <new>` and list
   the **relevant changes** of the new version in the body, taken from the upstream changelog
   linked in the comments above the version `ARG` (e.g. security fixes, behaviour changes).
+- Never justify a package version update with the old pinned version no longer being installable
+  or the build failing because of it (e.g. "so the pinned version can no longer be installed") —
+  pins are intentional and breaking when the distribution moves on is their whole point. Keep the
+  version pinned; this applies to PR descriptions as well.
 
 ## CHANGELOG
 
