@@ -23,7 +23,14 @@
 - Package version updates (e.g. `POSTFIX_PACKAGE_VERSION`, `MOZILLA_CA_CERT_STORE_PACKAGE_VERSION`
   in `Dockerfile`): keep the subject line `upgrade <package> package from <old> to <new>` and list
   the **relevant changes** of the new version in the body, taken from the upstream changelog
-  linked in the comments above the version `ARG` (e.g. security fixes, behaviour changes).
+  linked in the comments above the version `ARG` (e.g. security fixes or behaviour changes
+  affecting features in use).
+  - "Relevant" means relevant to **how this project uses the package**: before listing a change,
+    check it against the project's actual configuration and usage (e.g. `postfix.sh`,
+    `Dockerfile`, `docker-compose.yml`) and leave out changes that only affect features, roles,
+    modes or options the project doesn't use — even security fixes with a CVE / advisory id. Keep
+    changes to what it does use, including defaults and infrastructure it relies on implicitly
+    (e.g. certificates trusted for SMTP TLS, protocol requirements).
 - Never justify a package version update with the old pinned version no longer being installable
   or the build failing because of it (e.g. "so the pinned version can no longer be installed") —
   pins are intentional and breaking when the distribution moves on is their whole point. Keep the
